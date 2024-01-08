@@ -4,7 +4,9 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import compression from "compression";
 import mongoose from "mongoose";
+import expressWinston from "express-winston";
 import { PORT, MONGO_URL } from "./env";
+import logger from "./logger";
 
 const app = express();
 
@@ -12,12 +14,17 @@ app.use(cors({ credentials: true }));
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use(expressWinston.logger({
+    winstonInstance: logger,
+    statusLevels: true,
+}));
+
 
 mongoose.Promise = Promise;
 mongoose.connect(MONGO_URL)
     .then(() => {
-        console.log('Successfully connected to database')
-        mongoose.connection.on('error', (error: Error) => console.log(error));
-        app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+        logger.info('Successfully connected to database')
+        mongoose.connection.on('error', (error: Error) => logger.error(error));
+        app.listen(PORT, () => logger.info(`Server listening on port ${PORT}`));
     })
-    .catch((err) => console.log('Error occurred while connecting to database\n', err));
+    .catch((err) => logger.error('Error occurred while connecting to database\n', err));
