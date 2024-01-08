@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import compression from "compression";
 import mongoose from "mongoose";
+import router from "./router";
 import expressWinston from "express-winston";
 import { PORT, MONGO_URL } from "./env";
 import logger from "./logger";
@@ -19,6 +20,7 @@ app.use(expressWinston.logger({
     statusLevels: true,
 }));
 
+app.use('/', router());
 
 mongoose.Promise = Promise;
 mongoose.connect(MONGO_URL)
